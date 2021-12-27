@@ -1,4 +1,4 @@
 package com.logistic.project.model;
 
-public enum City {
+public class Route {
 }
