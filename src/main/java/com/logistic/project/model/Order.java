@@ -16,5 +16,5 @@ public class Order {
     @Field(name = "customer")
     private Customer customer;
     @Field(name = "orderPositions")
-    private Map<String, Integer> resourceQuantity;
+    private Map<String, Integer> merchandiseQuantity;
 }

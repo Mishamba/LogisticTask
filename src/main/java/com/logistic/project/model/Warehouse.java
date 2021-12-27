@@ -7,10 +7,10 @@ import java.util.Map;
 @Data
 public class Warehouse {
     private String name;
-    private Map<String, Integer> resourceQuantity;
+    private Map<String, Integer> merchandiseQuantity;
 
-    public Warehouse(String name, Map<String, Integer> resourceQuantity) {
+    public Warehouse(String name, Map<String, Integer> merchandiseQuantity) {
         this.name = name;
-        this.resourceQuantity = resourceQuantity;
+        this.merchandiseQuantity = merchandiseQuantity;
     }
 }
