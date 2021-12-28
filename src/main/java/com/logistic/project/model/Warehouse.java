@@ -10,9 +10,4 @@ public class Warehouse {
     private String name;
     private Map<String, Integer> merchandiseQuantity;
     private Coordinate position;
-
-    public Warehouse(String name, Map<String, Integer> merchandiseQuantity) {
-        this.name = name;
-        this.merchandiseQuantity = merchandiseQuantity;
-    }
 }

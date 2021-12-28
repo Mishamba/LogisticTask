@@ -1,7 +1,8 @@
 package com.logistic.project.util;
 
-import jakarta.validation.constraints.Min;
 import lombok.Data;
+
+import javax.validation.constraints.Min;
 
 @Data
 public class Coordinate {
