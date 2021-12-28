@@ -7,5 +7,5 @@ import java.util.Map;
 @Data
 public class MakeOrderDTO {
     private CustomerDTO customerDTO;
-    private Map<String, String> merchandiseQuantity;
+    private Map<String, Integer> merchandiseQuantity;
 }

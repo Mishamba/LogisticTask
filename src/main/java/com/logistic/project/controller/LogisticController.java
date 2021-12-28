@@ -6,12 +6,13 @@ import com.logistic.project.model.Warehouse;
 import com.logistic.project.model.dto.MakeOrderDTO;
 import com.logistic.project.repository.CustomerRepository;
 import com.logistic.project.repository.WarehouseRepository;
+import com.logistic.project.util.Configuration;
+import com.logistic.project.util.CoordinateCalculator;
 import com.logistic.project.util.WarehouseCustomerDistanceComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -34,16 +35,46 @@ public class LogisticController {
     public Order getOrderRouteAndCost(MakeOrderDTO makeOrderDTO) {
         Customer customer = customerRepository.findCustomerByName(makeOrderDTO.getCustomerDTO().getName());
 
-        List<Warehouse> warehouseList = new ArrayList<>();
+        Order finalOrder = new Order(null, customer, makeOrderDTO.getMerchandiseQuantity(), null);
+
         for (String merchandiseName : makeOrderDTO.getMerchandiseQuantity().keySet()) {
-            Warehouse warehouse = warehouseRepository.findWarehouseByMerchandiseQuantityContaining(merchandiseName);
-            if (warehouse != null ) {
-                warehouseList.add(warehouse);
+            List<Warehouse> warehouses = warehouseRepository.findWarehousesByMerchandiseQuantityContaining(merchandiseName);
+            if (warehouses != null ) {
+                continue;
+            }
+            // TODO: 12/28/21 fix warning
+            warehouses.sort(new WarehouseCustomerDistanceComparator(customer));
+
+            int requiredMerchandiseQuantity = makeOrderDTO.getMerchandiseQuantity().get(merchandiseName);
+            for (Warehouse warehouse : warehouses) {
+                requiredMerchandiseQuantity -= warehouse.getMerchandiseQuantity().get(merchandiseName);
+                if (requiredMerchandiseQuantity <= 0) {
+                    break;
+                } else {
+                    finalOrder.addWarehouse(warehouse);
+                }
             }
         }
 
-        warehouseList.sort(new WarehouseCustomerDistanceComparator(customer));
+        double cost = 0;
+        for (Warehouse warehouse : finalOrder.getWarehouses()) {
+            double merchandiseDeliveryCost = CoordinateCalculator.getCoordinateDistance(customer.getPosition(), warehouse.getPosition()) *
+                    Configuration.MILE_COST;
+            for (String merchandiseName : makeOrderDTO.getMerchandiseQuantity().keySet()) {
+                int merchandiseQuantityToDeliver = makeOrderDTO.getMerchandiseQuantity().get(merchandiseName) -
+                        warehouse.getMerchandiseQuantity().get(merchandiseName);
+                cost += merchandiseDeliveryCost * merchandiseQuantityToDeliver;
+                int leftMerchandiseToDeliver = Math.max(merchandiseQuantityToDeliver, 0);
+                if (leftMerchandiseToDeliver > 0) {
+                    makeOrderDTO.getMerchandiseQuantity().put(merchandiseName, leftMerchandiseToDeliver);
+                } else {
+                    makeOrderDTO.getMerchandiseQuantity().remove(merchandiseName);
+                }
+            }
+        }
 
-        // TODO: 12/27/21 get merchandise from nearest warehouses, calculate cost, store in ComplitedOrderDTO and send
+        finalOrder.setCost(cost);
+
+        return finalOrder;
     }
 }
