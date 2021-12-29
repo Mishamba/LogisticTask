@@ -34,7 +34,6 @@ public class LogisticController {
                 findWarehousesByMerchandiseQuantityContaining(makeOrderDTO.getMerchandiseQuantity());
 
         Order finalOrder = Order.builder().
-                warehouse(null).
                 customer(customer).
                 merchandiseQuantity(makeOrderDTO.getMerchandiseQuantity()).
                 build();
