@@ -16,20 +16,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController
+@RestController("/logistic")
 @AllArgsConstructor
 public class LogisticController {
     private final CustomerRepository customerRepository;
     private final CustomWarehouseRepositoryImpl customWarehouseRepositoryImpl;
 
-    @PostMapping
+    @PostMapping("/customer/create")
     public Customer createNewCustomer(Customer customer) {
         return customerRepository.save(customer);
     }
 
-    @GetMapping
+    @GetMapping("/order/get")
     public Order getOrderRouteAndCost(@RequestBody MakeOrderDTO makeOrderDTO) {
         Customer customer = customerRepository.findCustomerByName(makeOrderDTO.getCustomerDTO().getName());
+        List<Warehouse> warehouses = customWarehouseRepositoryImpl.
+                findWarehousesByMerchandiseQuantityContaining(makeOrderDTO.getMerchandiseQuantity());
 
         Order finalOrder = Order.builder().
                 warehouse(null).
@@ -37,8 +39,6 @@ public class LogisticController {
                 merchandiseQuantity(makeOrderDTO.getMerchandiseQuantity()).
                 build();
 
-        List<Warehouse> warehouses = customWarehouseRepositoryImpl.
-                findWarehousesByMerchandiseQuantityContaining(makeOrderDTO.getMerchandiseQuantity());
         warehouses.sort(new WarehouseCustomerDistanceComparator(customer));
 
         Warehouse finalWarehouse = warehouses.get(0);

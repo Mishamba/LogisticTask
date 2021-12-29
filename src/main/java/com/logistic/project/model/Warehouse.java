@@ -1,6 +1,7 @@
 package com.logistic.project.model;
 
 import com.logistic.project.util.Coordinate;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -9,6 +10,7 @@ import java.util.Map;
 
 @Data
 @Document
+@AllArgsConstructor
 public class Warehouse {
     @Id
     private String name;
