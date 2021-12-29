@@ -4,16 +4,12 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.Map;
-import java.util.Set;
 
 @Data
 @Builder
 public class Order {
-    private Set<Warehouse> warehouses;
+    private Warehouse warehouse;
     private Customer customer;
+    private Double distance;
     private Map<String, Integer> merchandiseQuantity;
-
-    public void addWarehouse(Warehouse warehouseToAdd) {
-        warehouses.add(warehouseToAdd);
-    }
 }
