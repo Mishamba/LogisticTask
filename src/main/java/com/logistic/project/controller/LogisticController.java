@@ -31,7 +31,7 @@ public class LogisticController {
         List<Warehouse> warehouses = customWarehouseRepositoryImpl.
                 findWarehousesByMerchandiseQuantityContaining(makeOrderDTO.getMerchandiseQuantity());
 
-        Customer customer = null;
+        Customer customer;
         if (optionalCustomer.isPresent()) {
             customer = optionalCustomer.get();
         } else {
