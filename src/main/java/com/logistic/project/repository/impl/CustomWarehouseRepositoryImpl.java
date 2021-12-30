@@ -19,7 +19,7 @@ public class CustomWarehouseRepositoryImpl implements CustomWarehouseRepository 
     @Override
     public List<Warehouse> findWarehousesByMerchandiseQuantityContaining(Map<String, Integer> merchandiseQuantity) {
         Query query = new Query();
-        merchandiseQuantity.forEach((key, value) -> query.addCriteria(Criteria.where(key).gte(value)));
+        merchandiseQuantity.forEach((key, value) -> query.addCriteria(Criteria.where("merchandiseQuantity." + key).gte(value)));
         return mongoTemplate.find(query, Warehouse.class);
     }
 }

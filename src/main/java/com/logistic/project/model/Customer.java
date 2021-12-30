@@ -15,6 +15,5 @@ public class Customer {
     @Id
     @NotNull
     private String name;
-    @NotNull
     private Coordinate position;
 }

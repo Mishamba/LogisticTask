@@ -12,29 +12,31 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
-@RestController("/logistic")
+@RestController
 @AllArgsConstructor
 public class LogisticController {
     private final CustomerRepository customerRepository;
     private final CustomWarehouseRepositoryImpl customWarehouseRepositoryImpl;
 
-    @PostMapping(path = "/customer/create")
+    @PostMapping("/customer/create")
     public Customer createNewCustomer(@RequestBody Customer customer) {
-        System.out.println(customer.toString());
         return customerRepository.save(customer);
     }
 
-    @GetMapping("/customer/get")
-    public Customer getCustomerByName(@RequestParam(name = "name") String name) {
-        return customerRepository.findCustomerByName(name);
-    }
-
-    @GetMapping("/order/get")
-    public Order getOrderRouteAndCost(@RequestBody MakeOrderDTO makeOrderDTO) {
-        Customer customer = customerRepository.findCustomerByName(makeOrderDTO.getCustomerDTO().getName());
+    @PostMapping("/order/make")
+    public Order makeOrder(@RequestBody MakeOrderDTO makeOrderDTO) {
+        Optional<Customer> optionalCustomer = customerRepository.findById(makeOrderDTO.getCustomerDTO().getName());
         List<Warehouse> warehouses = customWarehouseRepositoryImpl.
                 findWarehousesByMerchandiseQuantityContaining(makeOrderDTO.getMerchandiseQuantity());
+
+        Customer customer = null;
+        if (optionalCustomer.isPresent()) {
+            customer = optionalCustomer.get();
+        } else {
+            return Order.builder().customer(new Customer("no such customer", null)).build();
+        }
 
         Order finalOrder = Order.builder().
                 customer(customer).

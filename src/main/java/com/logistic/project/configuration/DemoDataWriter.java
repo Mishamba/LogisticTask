@@ -20,7 +20,10 @@ public class DemoDataWriter implements ApplicationRunner {
     private CustomerRepository customerRepository;
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) {
+        customerRepository.deleteAll();
+        warehouseRepository.deleteAll();
+
         Customer customer1 = new Customer("Gleb", new Coordinate(4, 3));
         Customer customer2 = new Customer("Sasha", new Coordinate(8, 9));
         Customer customer3 = new Customer("Misha", new Coordinate(15, 10));
@@ -30,25 +33,25 @@ public class DemoDataWriter implements ApplicationRunner {
         merchandiseQuantity1.put("bebra", 6);
         merchandiseQuantity1.put("vacine", 10);
         Map<String, Integer> merchandiseQuantity2 = new HashMap<>();
-        merchandiseQuantity1.put("laptop", 100);
-        merchandiseQuantity1.put("grivna", 20);
-        merchandiseQuantity1.put("beer", 1);
+        merchandiseQuantity2.put("laptop", 100);
+        merchandiseQuantity2.put("grivna", 20);
+        merchandiseQuantity2.put("beer", 1);
         Map<String, Integer> merchandiseQuantity3 = new HashMap<>();
-        merchandiseQuantity1.put("cup", 13);
-        merchandiseQuantity1.put("chair", 90);
-        merchandiseQuantity1.put("notebook", 18);
+        merchandiseQuantity3.put("cup", 13);
+        merchandiseQuantity3.put("chair", 90);
+        merchandiseQuantity3.put("notebook", 18);
         Map<String, Integer> merchandiseQuantity4 = new HashMap<>();
-        merchandiseQuantity1.put("gun", 54);
-        merchandiseQuantity1.put("answer", 42);
-        merchandiseQuantity1.put("computer", 4);
+        merchandiseQuantity4.put("gun", 54);
+        merchandiseQuantity4.put("answer", 42);
+        merchandiseQuantity4.put("computer", 4);
         Map<String, Integer> merchandiseQuantity5 = new HashMap<>();
-        merchandiseQuantity1.put("gun", 16);
-        merchandiseQuantity1.put("grinva", 6);
-        merchandiseQuantity1.put("charger", 132);
+        merchandiseQuantity5.put("gun", 16);
+        merchandiseQuantity5.put("grinva", 6);
+        merchandiseQuantity5.put("charger", 132);
         Map<String, Integer> merchandiseQuantity6 = new HashMap<>();
-        merchandiseQuantity1.put("computer", 16);
-        merchandiseQuantity1.put("bebra", 6);
-        merchandiseQuantity1.put("vacine", 10);
+        merchandiseQuantity6.put("computer", 16);
+        merchandiseQuantity6.put("bebra", 6);
+        merchandiseQuantity6.put("vacine", 10);
         Warehouse warehouse1 = new Warehouse("Compluter Inc", merchandiseQuantity1, new Coordinate(43,12));
         Warehouse warehouse2 = new Warehouse("Bebra", merchandiseQuantity2, new Coordinate(21, 89));
         Warehouse warehouse3 = new Warehouse("LG", merchandiseQuantity3, new Coordinate(15, 90));
