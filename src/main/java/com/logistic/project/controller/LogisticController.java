@@ -9,10 +9,7 @@ import com.logistic.project.repository.CustomerRepository;
 import com.logistic.project.util.CoordinateCalculator;
 import com.logistic.project.util.WarehouseCustomerDistanceComparator;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,9 +19,15 @@ public class LogisticController {
     private final CustomerRepository customerRepository;
     private final CustomWarehouseRepositoryImpl customWarehouseRepositoryImpl;
 
-    @PostMapping("/customer/create")
-    public Customer createNewCustomer(Customer customer) {
+    @PostMapping(path = "/customer/create")
+    public Customer createNewCustomer(@RequestBody Customer customer) {
+        System.out.println(customer.toString());
         return customerRepository.save(customer);
+    }
+
+    @GetMapping("/customer/get")
+    public Customer getCustomerByName(@RequestParam(name = "name") String name) {
+        return customerRepository.findCustomerByName(name);
     }
 
     @GetMapping("/order/get")
