@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -20,23 +19,17 @@ public class LogisticController {
     private final CustomerRepository customerRepository;
     private final CustomWarehouseRepositoryImpl customWarehouseRepositoryImpl;
 
-    @PostMapping("/customer/create")
-    public Customer createNewCustomer(@RequestBody Customer customer) {
+    @PostMapping("/customer")
+    public Customer saveNewCustomer(@RequestBody Customer customer) {
         return customerRepository.save(customer);
     }
 
-    @PostMapping("/order/make")
+    @PutMapping("/order")
     public Order makeOrder(@RequestBody MakeOrderDTO makeOrderDTO) {
-        Optional<Customer> optionalCustomer = customerRepository.findById(makeOrderDTO.getCustomerDTO().getName());
+        Customer customer = customerRepository.findById(makeOrderDTO.getCustomerDTO().getName()).
+                orElseThrow(() -> new IllegalArgumentException("no such customer"));
         List<Warehouse> warehouses = customWarehouseRepositoryImpl.
                 findWarehousesByMerchandiseQuantityContaining(makeOrderDTO.getMerchandiseQuantity());
-
-        Customer customer;
-        if (optionalCustomer.isPresent()) {
-            customer = optionalCustomer.get();
-        } else {
-            return Order.builder().customer(new Customer("no such customer", null)).build();
-        }
 
         Order finalOrder = Order.builder().
                 customer(customer).
