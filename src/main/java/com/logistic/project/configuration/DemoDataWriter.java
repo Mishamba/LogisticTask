@@ -1,5 +1,6 @@
 package com.logistic.project.configuration;
 
+import com.mongodb.MongoWriteException;
 import lombok.AllArgsConstructor;
 import org.bson.Document;
 import org.springframework.boot.ApplicationArguments;
@@ -20,7 +21,10 @@ public class DemoDataWriter implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        for (File file : Objects.requireNonNull(new File("classpath:resources/mongo").listFiles(File::isFile))) {
+        File folder = new File("src/main/resources/mongo");
+        File[] files = folder.listFiles(File::isFile);
+        assert files != null;
+        for (File file : files) {
             insertDocumentsFromMongoExtendedJsonFile(file.toPath());
         }
     }
@@ -29,7 +33,7 @@ public class DemoDataWriter implements ApplicationRunner {
         try {
             String collectionName = path.getFileName().toString().replace(".json", "");
             Files.readAllLines(path).forEach(l -> mongoTemplate.getCollection(collectionName).insertOne(Document.parse(l)));
-        } catch (IOException e) {
+        } catch (IOException | MongoWriteException e) {
             e.printStackTrace();
         }
     }
