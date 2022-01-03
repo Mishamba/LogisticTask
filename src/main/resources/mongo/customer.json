@@ -1,0 +1,3 @@
+{_id: 'Gleb', position: { x: 4, y: 3 }, _class: 'com.logistic.project.model.Customer'}
+{_id: 'Sasha', position: { x: 8, y: 9 }, _class: 'com.logistic.project.model.Customer'}
+{_id: 'Misha', position: { x: 15, y: 10 }, _class: 'com.logistic.project.model.Customer'}

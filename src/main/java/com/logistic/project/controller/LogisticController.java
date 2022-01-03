@@ -9,27 +9,25 @@ import com.logistic.project.repository.CustomerRepository;
 import com.logistic.project.util.CoordinateCalculator;
 import com.logistic.project.util.WarehouseCustomerDistanceComparator;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController("/logistic")
+@RestController
 @AllArgsConstructor
 public class LogisticController {
     private final CustomerRepository customerRepository;
     private final CustomWarehouseRepositoryImpl customWarehouseRepositoryImpl;
 
-    @PostMapping("/customer/create")
-    public Customer createNewCustomer(Customer customer) {
+    @PostMapping("/customer")
+    public Customer saveNewCustomer(@RequestBody Customer customer) {
         return customerRepository.save(customer);
     }
 
-    @GetMapping("/order/get")
-    public Order getOrderRouteAndCost(@RequestBody MakeOrderDTO makeOrderDTO) {
-        Customer customer = customerRepository.findCustomerByName(makeOrderDTO.getCustomerDTO().getName());
+    @PutMapping("/order")
+    public Order makeOrder(@RequestBody MakeOrderDTO makeOrderDTO) {
+        Customer customer = customerRepository.findById(makeOrderDTO.getCustomerDTO().getName()).
+                orElseThrow(() -> new IllegalArgumentException("no such customer"));
         List<Warehouse> warehouses = customWarehouseRepositoryImpl.
                 findWarehousesByMerchandiseQuantityContaining(makeOrderDTO.getMerchandiseQuantity());
 

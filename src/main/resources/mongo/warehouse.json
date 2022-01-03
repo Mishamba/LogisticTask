@@ -1,0 +1,6 @@
+{_id: 'Compluter Inc', merchandiseQuantity: { computer: 16, vacine: 10, bebra: 6 }, position: { x: 43, y: 12 }, _class: 'com.logistic.project.model.Warehouse'}
+{_id: 'Bebra', merchandiseQuantity: { grivna: 20, laptop: 100, beer: 1 }, position: { x: 21, y: 89 }, _class: 'com.logistic.project.model.Warehouse'}
+{_id: 'LG', merchandiseQuantity: { chair: 90, cup: 13, notebook: 18 }, position: { x: 15, y: 90 }, _class: 'com.logistic.project.model.Warehouse'}
+{_id: 'Abchihba', merchandiseQuantity: { gun: 54, computer: 4, answer: 42 }, position: { x: 567, y: 890 }, _class: 'com.logistic.project.model.Warehouse'}
+{_id: 'Node', merchandiseQuantity: { grinva: 6, gun: 16, charger: 132 }, position: { x: 389, y: 54 }, _class: 'com.logistic.project.model.Warehouse'}
+{_id: 'Meta', merchandiseQuantity: { computer: 16, vacine: 10, bebra: 6 }, position: { x: 321, y: 590 }, _class: 'com.logistic.project.model.Warehouse'}
