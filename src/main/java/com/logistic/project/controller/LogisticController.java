@@ -12,7 +12,6 @@ import com.logistic.project.util.CoordinateCalculator;
 import com.logistic.project.util.WarehouseCustomerDistanceComparator;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
