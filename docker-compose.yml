@@ -6,21 +6,10 @@ services:
     hostname: mongo
     ports:
       - "27017:27017"
-    environment:
-      MONGODB_USER: "server"
-      MONGODB_DATABASE: "logistic_database"
-      MONGODB_PASS: "123"
-    command: ["--bind_ip", "0.0.0.0"]
-  web:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    image: logistic_service
-    container_name: logistic_service
-    depends_on:
-      - mongo
+  redis:
+    image: "redis:alpine"
+    command: redis-server --requirepass 123
     ports:
-      - "8080:8080"
+      - "6379:6379"
     environment:
-      - SERVER_PORT=8080
-      - SPRING_APPLICATION_NAME=logistic_service
+      - REDIS_REPLICATION_MODE=master
