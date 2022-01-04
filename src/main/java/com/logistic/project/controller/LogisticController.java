@@ -11,6 +11,8 @@ import com.logistic.project.repository.CustomerRepository;
 import com.logistic.project.util.CoordinateCalculator;
 import com.logistic.project.util.WarehouseCustomerDistanceComparator;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,13 +26,15 @@ public class LogisticController {
     private final OrderRepository orderRepository;
 
     @GetMapping("/orders")
-    public List<Order> findOrders(@RequestParam("customerName") String customerName) {
-        return orderRepository.findOrderByCustomerName(customerName);
+    public List<Order> findOrders(@RequestParam("customerName") String customerName,
+                                  @RequestParam(name = "page") int page,
+                                  @RequestParam(name = "size") int size) {
+        return orderRepository.findOrderByCustomerName(customerName, PageRequest.of(page, size)).getContent();
     }
 
     @GetMapping("/warehouses")
-    public List<Warehouse> findWarehouses() {
-        return warehouseRepository.findAll();
+    public List<Warehouse> findWarehouses(@RequestParam("page") int page, @RequestParam("size") int size) {
+        return warehouseRepository.findAll(PageRequest.of(page, size)).getContent();
     }
 
     @PostMapping("/customer")
