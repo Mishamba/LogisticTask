@@ -47,7 +47,6 @@ public class LogisticController {
     }
 
     @PostMapping("/order")
-    @CachePut(value = "Order", key = "#makeOrderDTO.customerDTO.name")
     public Order makeOrder(@RequestBody MakeOrderDTO makeOrderDTO) {
         Customer customer = customerRepository.findById(makeOrderDTO.getCustomerDTO().getName()).
                 orElseThrow(() -> new IllegalArgumentException("no such customer"));
