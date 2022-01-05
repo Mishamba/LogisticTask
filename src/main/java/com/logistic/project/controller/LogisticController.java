@@ -27,7 +27,7 @@ public class LogisticController {
     private final OrderRepository orderRepository;
 
     @GetMapping("/orders")
-    @Cacheable(value = "List<Order>", key = "#customerName")
+    @Cacheable(value = "List<Order>", key = "{#customerName, #page, #size}")
     public List<Order> findOrders(@RequestParam("customerName") String customerName,
                                   @RequestParam(name = "page") int page,
                                   @RequestParam(name = "size") int size) {
