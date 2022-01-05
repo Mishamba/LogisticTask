@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  mongo:
+    image: mongo:4.4
+    container_name: mongo
+    hostname: mongo
+    ports:
+      - "27017:27017"
+  redis:
+    image: "redis:alpine"
+    command: redis-server --requirepass 123
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_REPLICATION_MODE=master
