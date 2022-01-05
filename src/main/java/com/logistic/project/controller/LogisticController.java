@@ -4,11 +4,14 @@ import com.logistic.project.model.Customer;
 import com.logistic.project.model.Order;
 import com.logistic.project.model.Warehouse;
 import com.logistic.project.model.dto.MakeOrderDTO;
+import com.logistic.project.repository.OrderRepository;
+import com.logistic.project.repository.WarehouseRepository;
 import com.logistic.project.repository.impl.CustomWarehouseRepositoryImpl;
 import com.logistic.project.repository.CustomerRepository;
 import com.logistic.project.util.CoordinateCalculator;
 import com.logistic.project.util.WarehouseCustomerDistanceComparator;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,13 +21,27 @@ import java.util.List;
 public class LogisticController {
     private final CustomerRepository customerRepository;
     private final CustomWarehouseRepositoryImpl customWarehouseRepositoryImpl;
+    private final WarehouseRepository warehouseRepository;
+    private final OrderRepository orderRepository;
+
+    @GetMapping("/orders")
+    public List<Order> findOrders(@RequestParam("customerName") String customerName,
+                                  @RequestParam(name = "page") int page,
+                                  @RequestParam(name = "size") int size) {
+        return orderRepository.findOrderByCustomerName(customerName, PageRequest.of(page, size)).getContent();
+    }
+
+    @GetMapping("/warehouses")
+    public List<Warehouse> findWarehouses(@RequestParam("page") int page, @RequestParam("size") int size) {
+        return warehouseRepository.findAll(PageRequest.of(page, size)).getContent();
+    }
 
     @PostMapping("/customer")
     public Customer saveNewCustomer(@RequestBody Customer customer) {
-        return customerRepository.save(customer);
+        return customerRepository.insert(customer);
     }
 
-    @PutMapping("/order")
+    @PostMapping("/order")
     public Order makeOrder(@RequestBody MakeOrderDTO makeOrderDTO) {
         Customer customer = customerRepository.findById(makeOrderDTO.getCustomerDTO().getName()).
                 orElseThrow(() -> new IllegalArgumentException("no such customer"));
@@ -43,6 +60,6 @@ public class LogisticController {
         finalOrder.setWarehouse(finalWarehouse);
         finalOrder.setDistance(CoordinateCalculator.getCoordinateDistance(customer.getPosition(), finalWarehouse.getPosition()));
 
-        return finalOrder;
+        return orderRepository.insert(finalOrder);
     }
 }
