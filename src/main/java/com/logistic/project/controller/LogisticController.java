@@ -11,6 +11,8 @@ import com.logistic.project.repository.CustomerRepository;
 import com.logistic.project.util.CoordinateCalculator;
 import com.logistic.project.util.WarehouseCustomerDistanceComparator;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +27,7 @@ public class LogisticController {
     private final OrderRepository orderRepository;
 
     @GetMapping("/orders")
+    @Cacheable(value = "List<Order>", key = "#customerName")
     public List<Order> findOrders(@RequestParam("customerName") String customerName,
                                   @RequestParam(name = "page") int page,
                                   @RequestParam(name = "size") int size) {
@@ -32,16 +35,19 @@ public class LogisticController {
     }
 
     @GetMapping("/warehouses")
+    @Cacheable(value = "List<Warehouse>", key = "{#page, #size}")
     public List<Warehouse> findWarehouses(@RequestParam("page") int page, @RequestParam("size") int size) {
         return warehouseRepository.findAll(PageRequest.of(page, size)).getContent();
     }
 
     @PostMapping("/customer")
+    @CachePut(value = "Customer", key = "#customer.name")
     public Customer saveNewCustomer(@RequestBody Customer customer) {
         return customerRepository.insert(customer);
     }
 
     @PostMapping("/order")
+    @CachePut(value = "Order", key = "#makeOrderDTO.customerDTO.name")
     public Order makeOrder(@RequestBody MakeOrderDTO makeOrderDTO) {
         Customer customer = customerRepository.findById(makeOrderDTO.getCustomerDTO().getName()).
                 orElseThrow(() -> new IllegalArgumentException("no such customer"));

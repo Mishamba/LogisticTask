@@ -11,5 +11,3 @@ services:
     command: redis-server --requirepass 123
     ports:
       - "6379:6379"
-    environment:
-      - REDIS_REPLICATION_MODE=master
