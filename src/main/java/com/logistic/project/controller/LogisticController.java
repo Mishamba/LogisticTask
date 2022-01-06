@@ -11,10 +11,14 @@ import com.logistic.project.repository.CustomerRepository;
 import com.logistic.project.util.CoordinateCalculator;
 import com.logistic.project.util.WarehouseCustomerDistanceComparator;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -25,6 +29,7 @@ public class LogisticController {
     private final OrderRepository orderRepository;
 
     @GetMapping("/orders")
+    @Cacheable(value = "List<Order>", key = "{#customerName + 's_orders', #page, #size}")
     public List<Order> findOrders(@RequestParam("customerName") String customerName,
                                   @RequestParam(name = "page") int page,
                                   @RequestParam(name = "size") int size) {
@@ -32,6 +37,7 @@ public class LogisticController {
     }
 
     @GetMapping("/warehouses")
+    @Cacheable(value = "List<Warehouse>", key = "{'warehouses_' + #page + '_' + #size}")
     public List<Warehouse> findWarehouses(@RequestParam("page") int page, @RequestParam("size") int size) {
         return warehouseRepository.findAll(PageRequest.of(page, size)).getContent();
     }
@@ -42,6 +48,7 @@ public class LogisticController {
     }
 
     @PostMapping("/order")
+    @CacheEvict(value = "List<Order>", allEntries = true)
     public Order makeOrder(@RequestBody MakeOrderDTO makeOrderDTO) {
         Customer customer = customerRepository.findById(makeOrderDTO.getCustomerDTO().getName()).
                 orElseThrow(() -> new IllegalArgumentException("no such customer"));
@@ -58,7 +65,8 @@ public class LogisticController {
         Warehouse finalWarehouse = warehouses.get(0);
 
         finalOrder.setWarehouse(finalWarehouse);
-        finalOrder.setDistance(CoordinateCalculator.getCoordinateDistance(customer.getPosition(), finalWarehouse.getPosition()));
+        finalOrder.setDistance(CoordinateCalculator.
+                getCoordinateDistance(customer.getPosition(), finalWarehouse.getPosition()));
 
         return orderRepository.insert(finalOrder);
     }
