@@ -1,0 +1,28 @@
+[
+  {
+    "id": "61d5c1f409caef30615665d5",
+    "warehouse": {
+      "name": "Compluter Inc",
+      "merchandiseQuantity": {
+        "computer": 16,
+        "vacine": 10,
+        "bebra": 6
+      },
+      "position": {
+        "x": 43,
+        "y": 12
+      }
+    },
+    "customer": {
+      "name": "Misha",
+      "position": {
+        "x": 15,
+        "y": 10
+      }
+    },
+    "distance": 28.071337695236398,
+    "merchandiseQuantity": {
+      "computer": 1
+    }
+  }
+]
