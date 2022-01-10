@@ -1,81 +1,126 @@
 package com.logistic.project.controller;
 
+import com.logistic.project.model.Customer;
+import com.logistic.project.model.dto.CustomerDTO;
+import com.logistic.project.model.dto.MakeOrderDTO;
+import com.logistic.project.util.Coordinate;
 import org.junit.ClassRule;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.DockerComposeContainer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.HashMap;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+@SpringBootTest
 @Testcontainers
+@AutoConfigureWebTestClient
 class LogisticControllerTest {
     @ClassRule
-    private DockerComposeContainer compose = new DockerComposeContainer(
-            new File("test/resources/dockerCompose.yml"));
+    private final static GenericContainer redis = new GenericContainer(DockerImageName.parse("redis:latest")).
+            withExposedPorts(6379).
+            withCommand("redis-server --requirepass 123");
+
+    @ClassRule
+    private final static GenericContainer mongo = new GenericContainer(DockerImageName.parse("mongo:latest")).
+            withExposedPorts(27017);
+
+    @BeforeAll
+    static void startContainers() {
+        redis.start();
+        mongo.start();
+    }
+
+    @Autowired
+    private WebTestClient webTestClient;
 
     @Test
     void findOrders() {
-        String request = "http://" + compose.getServiceHost("service_l", 8080) + ":" +
-                compose.getServicePort("service_l", 8080) +
-                "/orders?customerName=Misha&page=2&size=3";
-        try {
-            String actualResponse = simpleGetRequest(request);
-            String expectedResponse = readFile("findOrders.json");
-            assertEquals(expectedResponse, actualResponse);
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
+       this.webTestClient.
+               get().
+               uri("/orders?page=0&size=1").
+               header("accept", "application/json").
+               exchange().
+               expectStatus().
+               is2xxSuccessful().
+               expectHeader().
+               contentType("application/json").
+               expectBody().
+               jsonPath("[0].customer").
+               isNotEmpty().
+               jsonPath("[0].distance").
+               isNotEmpty().
+               jsonPath("[0].warehouse").
+               isNotEmpty();
     }
 
     @Test
     void findWarehouses() {
-        String request = "http://" + compose.getServiceHost("service_l", 8080) + ":" +
-                compose.getServicePort("service_l", 8080) +
-                "/warehouses?page=2&size=3";
-        try {
-            String actualResponse = simpleGetRequest(request);
-            String expectedResponse = readFile("findWarehouses.json");
-            assertEquals(expectedResponse, actualResponse);
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
-        }
+        this.webTestClient.
+                get().
+                uri("/warehouses?page=0&size=1").
+                header("accept", "application/json").
+                exchange().
+                expectStatus().
+                is2xxSuccessful().
+                expectHeader().
+                contentType("application/json").
+                expectBody().
+                jsonPath("[0].name").
+                isNotEmpty().
+                jsonPath("[0].merchandiseQuantity").
+                isNotEmpty().
+                jsonPath("[0].position").
+                isNotEmpty();
     }
-
-    // TODO: 1/6/22 finish two methods, add response files, add service_l container to docker-compose
 
     @Test
     void saveNewCustomer() {
+        this.webTestClient.
+                post().
+                uri("/customer").
+                header("Content-Type", "application/json").
+                body(BodyInserters.fromValue(Customer.builder().name("smth").position(new Coordinate(1, 2)))).
+                exchange().
+                expectStatus().
+                is2xxSuccessful().
+                expectHeader().
+                contentType("application/json").
+                expectBody().
+                jsonPath("name").
+                isNotEmpty().
+                jsonPath("position").
+                isNotEmpty();
     }
 
     @Test
     void makeOrder() {
-    }
-
-    private static String readFile(String fileName) throws IOException {
-        return Files.readString(Paths.get("test/resources/responses/" + fileName));
-    }
-
-    private String simpleGetRequest(String address) throws Exception {
-        URL url = new URL(address);
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
-
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuilder content = new StringBuilder();
-        while ((inputLine = in.readLine()) != null) {
-            content.append(inputLine);
-        }
-        in.close();
-
-        return content.toString();
+        HashMap<String, Integer> merchandiseQuantity = new HashMap<>();
+        merchandiseQuantity.put("computer", 1);
+        this.webTestClient.
+                post().
+                uri("/order").
+                header("Content-Type", "application/json").
+                body(BodyInserters.fromValue(MakeOrderDTO.builder().customerDTO(new CustomerDTO("smth")).merchandiseQuantity(merchandiseQuantity))).
+                exchange().
+                expectStatus().
+                is2xxSuccessful().
+                expectHeader().
+                contentType("application/json").
+                expectBody().
+                jsonPath("id").
+                isNotEmpty().
+                jsonPath("customer").
+                isNotEmpty().
+                jsonPath("distance").
+                isNotEmpty().
+                jsonPath("warehouse").
+                isNotEmpty();
     }
 }
