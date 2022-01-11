@@ -18,9 +18,10 @@ import java.nio.file.Path;
 public class DemoDataWriter implements ApplicationRunner {
     private MongoTemplate mongoTemplate;
 
+    // TODO fix exception in docker container
     @Override
     public void run(ApplicationArguments args) {
-        File folder = new File("src/main/resources/mongo");
+        File folder = new File("resources/mongo");
         File[] files = folder.listFiles(File::isFile);
         assert files != null;
         for (File file : files) {

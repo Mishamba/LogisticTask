@@ -10,13 +10,9 @@ services:
     ports:
       - "6379:6379"
   backend:
-    image: maven:3.8.4-ibm-semeru-17-focal
-    command: mvn spring-boot:run
+    image: docker.io/library/logistic_service:latest
     ports:
       - "8080:8080"
-    volumes:
-      - .:/usr/src/mymaven:rw
-    working_dir: /usr/src/mymaven
     environment:
       - SPRING_DATA_MONGODB_HOST=mongo
       - SPRING_REDIS_HOST=redis
