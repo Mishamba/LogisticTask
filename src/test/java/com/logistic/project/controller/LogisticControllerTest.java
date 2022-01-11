@@ -47,97 +47,101 @@ class LogisticControllerTest {
         registry.add("spring.redis.port", redis::getFirstMappedPort);
     }
 
-    @BeforeAll
-    static void startContainers() {
-        redis.start();
-    }
-
     @Autowired
     private WebTestClient webTestClient;
 
     @Test
     void findOrders() {
-       this.webTestClient.
-               get().
-               uri("/orders?customerName=Misha&page=0&size=1").
-               header("accept", "application/json").
-               exchange().
-               expectStatus().
-               is2xxSuccessful().
-               expectHeader().
-               contentType("application/json").
-               expectBody().
-               jsonPath("[0]").
-               isNotEmpty().
-               jsonPath("[0].customer").
-               isNotEmpty().
-               jsonPath("[0].distance").
-               isNotEmpty().
-               jsonPath("[0].warehouse").
-               isNotEmpty();
+       String customerName = "Misha";
+       this.webTestClient
+               .get()
+               .uri(uriBuilder -> uriBuilder
+                       .path("/orders")
+                       .queryParam("customerName", customerName)
+                       .queryParam("page", 0)
+                       .queryParam("size", 1)
+                       .build())
+               .header("accept", "application/json")
+               .exchange()
+               .expectStatus()
+               .is2xxSuccessful()
+               .expectHeader()
+               .contentType("application/json")
+               .expectBody()
+               .jsonPath("[0]")
+               .isNotEmpty()
+               .jsonPath("[0].customer.name")
+               .isEqualTo(customerName)
+               .jsonPath("[0].distance")
+               .isNotEmpty()
+               .jsonPath("[0].warehouse")
+               .isNotEmpty();
     }
 
     @Test
     void findWarehouses() {
-        this.webTestClient.
-                get().
-                uri("/warehouses?page=0&size=1").
-                header("accept", "application/json").
-                exchange().
-                expectStatus().
-                is2xxSuccessful().
-                expectHeader().
-                contentType("application/json").
-                expectBody().
-                jsonPath("[0].name").
-                isNotEmpty().
-                jsonPath("[0].merchandiseQuantity").
-                isNotEmpty().
-                jsonPath("[0].position").
-                isNotEmpty();
+        this.webTestClient
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/warehouses")
+                        .queryParam("page", 0)
+                        .queryParam("size", 1)
+                        .build())
+                .header("accept", "application/json")
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .expectHeader()
+                .contentType("application/json")
+                .expectBody()
+                .jsonPath("[0].name")
+                .isNotEmpty()
+                .jsonPath("[0].merchandiseQuantity")
+                .isNotEmpty()
+                .jsonPath("[0].position")
+                .isNotEmpty();
     }
 
     @Test
     void saveNewCustomer() {
-        this.webTestClient.
-                post().
-                uri("/customer").
-                header("Content-Type", "application/json").
-                body(BodyInserters.fromValue(Customer.builder().name("smth").position(new Coordinate(1, 2)).build())).
-                exchange().
-                expectStatus().
-                is2xxSuccessful().
-                expectHeader().
-                contentType("application/json").
-                expectBody().
-                jsonPath("name").
-                isNotEmpty().
-                jsonPath("position").
-                isNotEmpty();
+        this.webTestClient
+                .post()
+                .uri("/customer")
+                .header("Content-Type", "application/json")
+                .body(BodyInserters.fromValue(Customer.builder().name("smth").position(new Coordinate(1, 2)).build()))
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .expectHeader()
+                .contentType("application/json") .expectBody()
+                .jsonPath("name")
+                .isNotEmpty()
+                .jsonPath("position")
+                .isNotEmpty();
     }
 
     @Test
     void makeOrder() {
         HashMap<String, Integer> merchandiseQuantity = new HashMap<>();
         merchandiseQuantity.put("computer", 1);
-        this.webTestClient.
-                post().
-                uri("/order").
-                header("Content-Type", "application/json").
-                body(BodyInserters.fromValue(MakeOrderDTO.builder().customerDTO(new CustomerDTO("Misha")).merchandiseQuantity(merchandiseQuantity).build())).
-                exchange().
-                expectStatus().
-                is2xxSuccessful().
-                expectHeader().
-                contentType("application/json").
-                expectBody().
-                jsonPath("id").
-                isNotEmpty().
-                jsonPath("customer").
-                isNotEmpty().
-                jsonPath("distance").
-                isNotEmpty().
-                jsonPath("warehouse").
-                isNotEmpty();
+        this.webTestClient
+                .post()
+                .uri("/order")
+                .header("Content-Type", "application/json")
+                .body(BodyInserters.fromValue(MakeOrderDTO.builder().customerDTO(new CustomerDTO("Misha")).merchandiseQuantity(merchandiseQuantity).build()))
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .expectHeader()
+                .contentType("application/json")
+                .expectBody()
+                .jsonPath("id")
+                .isNotEmpty()
+                .jsonPath("customer")
+                .isNotEmpty()
+                .jsonPath("distance")
+                .isNotEmpty()
+                .jsonPath("warehouse")
+                .isNotEmpty();
     }
 }
