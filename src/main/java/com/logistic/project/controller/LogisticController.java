@@ -16,9 +16,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -37,7 +35,7 @@ public class LogisticController {
     }
 
     @GetMapping("/warehouses")
-    @Cacheable(value = "List<Warehouse>", key = "{'warehouses_' + #page + '_' + #size}")
+    @Cacheable(value = "List<Warehouse>", key = "{'warehouses', #page, #size}")
     public List<Warehouse> findWarehouses(@RequestParam("page") int page, @RequestParam("size") int size) {
         return warehouseRepository.findAll(PageRequest.of(page, size)).getContent();
     }
