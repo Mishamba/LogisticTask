@@ -18,4 +18,5 @@ services:
       - .:/usr/src/mymaven:rw
     working_dir: /usr/src/mymaven
     environment:
-      - MONGODB_HOST=mongo
+      - SPRING_DATA_MONGODB_HOST=mongo
+      - SPRING_REDIS_HOST=redis
