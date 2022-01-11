@@ -35,7 +35,7 @@ public class LogisticController {
     }
 
     @GetMapping("/warehouses")
-    @Cacheable(value = "List<Warehouse>", key = "{'warehouses_' + #page + '_' + #size}")
+    @Cacheable(value = "List<Warehouse>", key = "{'warehouses', #page, #size}")
     public List<Warehouse> findWarehouses(@RequestParam("page") int page, @RequestParam("size") int size) {
         return warehouseRepository.findAll(PageRequest.of(page, size)).getContent();
     }
