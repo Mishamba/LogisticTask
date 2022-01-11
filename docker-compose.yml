@@ -2,8 +2,6 @@ version: "3.8"
 services:
   mongo:
     image: mongo:4.4
-    container_name: mongo
-    hostname: mongo
     ports:
       - "27017:27017"
   redis:
@@ -11,5 +9,13 @@ services:
     command: redis-server --requirepass 123
     ports:
       - "6379:6379"
+  backend:
+    image: maven:3.8.4-ibm-semeru-17-focal
+    command: mvn spring-boot:run
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/usr/src/mymaven:rw
+    working_dir: /usr/src/mymaven
     environment:
-      - REDIS_REPLICATION_MODE=master
+      - MONGODB_HOST=mongo

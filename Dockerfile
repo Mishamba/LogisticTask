@@ -1,24 +1,16 @@
-FROM openjdk:11-jdk-slim
-# Set the time zone for the container
-ENV TZ=Asia/Tehran
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+FROM maven:3.5.2-jdk-8-alpine AS MAVEN_BUILD
 
-# remove united states, from sources list
-RUN sed -i 's|http://us.|http://|g' /etc/apt/sources.list
+COPY pom.xml /build/
+COPY src /build/src/
 
-# add iran to sources
-RUN > /etc/apt/sources.list
-RUN echo "deb http://debian.asis.ai/debian buster main" >> /etc/apt/sources.list
-RUN echo "deb http://debian.asis.ai/debian-security buster/updates main" >> /etc/apt/sources.list
-# update sources
-RUN apt-get update
-# install some packages
-RUN apt-get install -y curl
-# run under a user. This makes the whole thing more secure
-RUN groupadd normalgroup
-RUN useradd -G normalgroup normaluser
-USER normaluser:normalgroup
-# run app
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+WORKDIR /build/
+
+RUN mvn -B -U -e clean verify
+
+FROM openjdk:8-jre-alpine
+
+WORKDIR /
+
+COPY --from=MAVEN_BUILD /build/target/MyApp-0.0.1-SNAPSHOT.jar /
+
+ENTRYPOINT ["java", "-jar", "MyApp-0.0.1-SNAPSHOT.jar"]
