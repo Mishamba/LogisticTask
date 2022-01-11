@@ -7,34 +7,49 @@ import com.logistic.project.util.Coordinate;
 import org.junit.ClassRule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
 import java.util.HashMap;
 
-@SpringBootTest
-@Testcontainers
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
+@ExtendWith(SpringExtension.class)
 class LogisticControllerTest {
     @ClassRule
     private final static GenericContainer redis = new GenericContainer(DockerImageName.parse("redis:latest")).
             withExposedPorts(6379).
             withCommand("redis-server --requirepass 123");
 
-    @ClassRule
-    private final static GenericContainer mongo = new GenericContainer(DockerImageName.parse("mongo:latest")).
-            withExposedPorts(27017);
+    @Container
+    final static MongoDBContainer mongo = new MongoDBContainer(DockerImageName.parse("mongo:latest"));
+
+    @DynamicPropertySource
+    static void setProperties(DynamicPropertyRegistry registry) {
+        mongo.start();
+        redis.start();
+        registry.add("spring.data.mongodb.host", mongo::getHost);
+        registry.add("spring.data.mongodb.port", mongo::getFirstMappedPort);
+        registry.add("spring.redis.host", redis::getHost);
+        registry.add("spring.redis.port", redis::getFirstMappedPort);
+    }
 
     @BeforeAll
     static void startContainers() {
         redis.start();
-        mongo.start();
     }
 
     @Autowired
@@ -44,7 +59,7 @@ class LogisticControllerTest {
     void findOrders() {
        this.webTestClient.
                get().
-               uri("/orders?page=0&size=1").
+               uri("/orders?customerName=Misha&page=0&size=1").
                header("accept", "application/json").
                exchange().
                expectStatus().
@@ -52,6 +67,8 @@ class LogisticControllerTest {
                expectHeader().
                contentType("application/json").
                expectBody().
+               jsonPath("[0]").
+               isNotEmpty().
                jsonPath("[0].customer").
                isNotEmpty().
                jsonPath("[0].distance").
@@ -86,7 +103,7 @@ class LogisticControllerTest {
                 post().
                 uri("/customer").
                 header("Content-Type", "application/json").
-                body(BodyInserters.fromValue(Customer.builder().name("smth").position(new Coordinate(1, 2)))).
+                body(BodyInserters.fromValue(Customer.builder().name("smth").position(new Coordinate(1, 2)).build())).
                 exchange().
                 expectStatus().
                 is2xxSuccessful().
@@ -107,7 +124,7 @@ class LogisticControllerTest {
                 post().
                 uri("/order").
                 header("Content-Type", "application/json").
-                body(BodyInserters.fromValue(MakeOrderDTO.builder().customerDTO(new CustomerDTO("smth")).merchandiseQuantity(merchandiseQuantity))).
+                body(BodyInserters.fromValue(MakeOrderDTO.builder().customerDTO(new CustomerDTO("Misha")).merchandiseQuantity(merchandiseQuantity).build())).
                 exchange().
                 expectStatus().
                 is2xxSuccessful().

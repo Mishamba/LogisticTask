@@ -1,9 +1,7 @@
 package com.logistic.project.model;
 
 import com.logistic.project.util.Coordinate;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,6 +12,8 @@ import java.io.Serializable;
 @Document
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class Customer implements Serializable {
     @Id
     @NotNull
