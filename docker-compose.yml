@@ -2,7 +2,6 @@ version: "3.8"
 services:
   mongo:
     image: mongo:4.4
-    hostname: mongo
     ports:
       - "27017:27017"
   redis:
@@ -10,3 +9,10 @@ services:
     command: redis-server --requirepass 123
     ports:
       - "6379:6379"
+  backend:
+    image: docker.io/library/logistic_service:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATA_MONGODB_HOST=mongo
+      - SPRING_REDIS_HOST=redis

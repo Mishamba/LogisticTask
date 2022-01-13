@@ -99,6 +99,11 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <image>
+                        <name>logistic_service</name>
+                    </image>
+                </configuration>
             </plugin>
         </plugins>
     </build>
